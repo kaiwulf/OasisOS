@@ -1,4 +1,4 @@
 # i686-elf
-Oasis-SWOS
+OasisOS
 
 Experimenting with OS development.
