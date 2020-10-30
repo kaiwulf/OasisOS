@@ -89,11 +89,8 @@ void terminal_putchar(char c)
 
 	if (++terminal_column == VGA_WIDTH) {
 		terminal_column = 0;
-		if (++terminal_row == VGA_HEIGHT)
+		if (++terminal_row == VGA_HEIGHT || ++terminal_row == '\n')
 			terminal_row = 0;
-	} else if(c == '\n') {
-		++terminal_row;
-		terminal_column = 0;
 	}
 }
  
@@ -114,5 +111,5 @@ void kernel_main(void)
 	terminal_initialize();
  
 	/* Newline support is left as an exercise. */
-	terminal_writestring("Hello, kernel World!\n");
+	terminal_writestring("Hello, kernel World!\nHi, how ya doing?\nGood\n");
 }
