@@ -8,5 +8,5 @@ gcc-10.2.0/
 *.gz
 *.tar.*
 *.o
-boot/*.iso
+sysroot/boot/isodir
 *.iso
