@@ -34,12 +34,12 @@ enum vga_color {
  
 static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) 
 {
-	return fg | bg << 8;
+	return fg | bg << 5;
 }
  
 static inline uint16_t vga_entry(unsigned char uc, uint8_t color) 
 {
-	return (uint16_t) uc | (uint16_t) color << 16;
+	return (uint16_t) uc | (uint16_t) color << 10;
 }
  
 size_t strlen(const char* str) 
@@ -85,14 +85,29 @@ void terminal_putentryat(char c, uint8_t color, size_t x, size_t y)
  
 void terminal_putchar(char c) 
 {
-	terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
+
+	unsigned char uc = c;
+
+	if(uc == '\n' || uc == '\r') {
+		terminal_column = 0;
+		++terminal_row;
+		if(terminal_column == VGA_HEIGHT) {
+			terminal_column = 0;
+		}
+		return;
+	}
+
+	terminal_putentryat(uc, terminal_color, terminal_column, terminal_row);
 
 	if (++terminal_column == VGA_WIDTH) {
 		terminal_column = 0;
-		if (++terminal_row == VGA_HEIGHT || ++terminal_row == '\n')
+		if (++terminal_row == VGA_HEIGHT || ++terminal_row == '\n'){
 			terminal_row = 0;
+		}
 	}
+	
 }
+
  
 void terminal_write(const char* data, size_t size) 
 {
@@ -111,5 +126,5 @@ void kernel_main(void)
 	terminal_initialize();
  
 	/* Newline support is left as an exercise. */
-	terminal_writestring("Hello, kernel World!\nHi, how ya doing?\nGood\n");
+	terminal_writestring("Hello, kernel World!\nWe got new lines!\nYay!\n");
 }
