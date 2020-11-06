@@ -2,6 +2,7 @@ binutils-2.35.1/
 build-binutils/
 build-gcc/
 gcc-10.2.0/
+glibc-2.32/
 *.xz
 *.lz
 *.sum
