@@ -1,6 +1,10 @@
-DEFAULT_HOST!=../default-host.sh
-HOST?=DEFAULT_HOST
+# DEFAULT_HOST!=../default-host.sh
+DEFAULT_HOST=i386
+HOST?=$(DEFAULT_HOST)
 HOSTARCH!=../target-triplet-to-arch.sh $(HOST)
+
+AS=i686-elf-as
+CC=i686-elf-gcc
 
 CFLAGS?=-O2 -g
 CPPFLAGS?=
@@ -19,6 +23,7 @@ LDFLAGS:=$(LDFLAGS)
 LIBS:=$(LIBS) -nostdlib -lk -lgcc
 
 ARCHDIR=arch/$(HOSTARCH)
+CROSSDIR=/home/kai/.bin/cross/lib/gcc/i686-elf/10.2.0
 
 include $(ARCHDIR)/make.config
 
@@ -41,20 +46,23 @@ $(ARCHDIR)/crtn.o \
 LINK_LIST=\
 $(LDFLAGS) \
 $(ARCHDIR)/crti.o \
-$(ARCHDIR)/crtbegin.o \
+$(CROSSDIR)/crtbegin.o \
 $(KERNEL_OBJS) \
 $(LIBS) \
-$(ARCHDIR)/crtend.o \
+$(CROSSDIR)/10.2.0/crtend.o \
 $(ARCHDIR)/crtn.o \
 
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S
 
-all: myos.kernel
+all: oasis.bin
 
-myos.kernel: $(OBJS) $(ARCHDIR)/linker.ld
+oasis.bin: $(OBJS) $(ARCHDIR)/linker.ld
+	$(AS) x86_crti.s -o $(ARCHDIR)/crti.o
+	$(AS) x86_crtn.s -o $(ARCHDIR)/crtn.o
+	$(AS) x86_crti.s -o $(ARCHDIR)/crti.o
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
-	grub-file --is-x86-multiboot myos.kernel
+	grub-file --is-x86-multiboot oasis.bin
 
 $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
@@ -65,8 +73,17 @@ $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 .S.o:
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
+crti: x86_crti.s
+	$(AS) x86_crti.s -o $(ARCHDIR)/crti.o
+
+crtn: x86_crtn.s
+	$(AS) x86_crtn.s -o $(ARCHDIR)/crtn.o
+
+crt0: x86_crt0.s
+	$(AS) x86_crt0.s -o $(ARCHDIR)/crt0.o
+
 clean:
-	rm -f myos.kernel
+	rm -f oasis.bin
 	rm -f $(OBJS) *.o */*.o */*/*.o
 	rm -f $(OBJS:.o=.d) *.d */*.d */*/*.d
 
@@ -76,8 +93,8 @@ install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
 
-install-kernel: myos.kernel
+install-kernel: oasis.bin
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp myos.kernel $(DESTDIR)$(BOOTDIR)
+	cp oasis.bin $(DESTDIR)$(BOOTDIR)
 
 -include $(OBJS:.o=.d)
