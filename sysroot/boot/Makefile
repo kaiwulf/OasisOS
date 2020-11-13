@@ -30,6 +30,6 @@ crt0: x86_crt0.s
 
 myos: $(OBJ_LINK_LIST)
 	$(CC) -o myos.bin $(OBJ_LINK_LIST)
- 
+
 clean:
 	rm -f myos.kernel $(INTERNAL_OBJS)
