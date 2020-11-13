@@ -20,7 +20,8 @@ INCLUDEDIR?=$(PREFIX)/include
 CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
 CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude
 LDFLAGS:=$(LDFLAGS)
-LIBS:=$(LIBS) -nostdlib -lk -lgcc
+# LIBS:=$(LIBS) -nostdlib -lk -lgcc
+LIBS:=$(LIBS) -nostdlib -lgcc
 
 ARCHDIR=arch/$(HOSTARCH)
 CROSSDIR=/home/kai/.bin/cross/lib/gcc/i686-elf/10.2.0
@@ -49,7 +50,7 @@ $(ARCHDIR)/crti.o \
 $(CROSSDIR)/crtbegin.o \
 $(KERNEL_OBJS) \
 $(LIBS) \
-$(CROSSDIR)/10.2.0/crtend.o \
+$(CROSSDIR)/crtend.o \
 $(ARCHDIR)/crtn.o \
 
 .PHONY: all clean install install-headers install-kernel
@@ -58,9 +59,6 @@ $(ARCHDIR)/crtn.o \
 all: oasis.bin
 
 oasis.bin: $(OBJS) $(ARCHDIR)/linker.ld
-	$(AS) x86_crti.s -o $(ARCHDIR)/crti.o
-	$(AS) x86_crtn.s -o $(ARCHDIR)/crtn.o
-	$(AS) x86_crti.s -o $(ARCHDIR)/crti.o
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
 	grub-file --is-x86-multiboot oasis.bin
 
@@ -73,13 +71,16 @@ $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 .S.o:
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
-crti: x86_crti.s
+kernel: kernel.c
+	$(CC) kernel.c -o kernel.o $(CFLAGS)
+
+crti.o: x86_crti.s
 	$(AS) x86_crti.s -o $(ARCHDIR)/crti.o
 
-crtn: x86_crtn.s
+crtn.o: x86_crtn.s
 	$(AS) x86_crtn.s -o $(ARCHDIR)/crtn.o
 
-crt0: x86_crt0.s
+crt0.o: x86_crt0.s
 	$(AS) x86_crt0.s -o $(ARCHDIR)/crt0.o
 
 clean:
