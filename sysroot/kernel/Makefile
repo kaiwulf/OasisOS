@@ -37,7 +37,10 @@ KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
 
+
+
 OBJS=\
+../libc/libk.a \
 $(ARCHDIR)/crti.o \
 $(ARCHDIR)/crtbegin.o \
 $(KERNEL_OBJS) \
@@ -59,7 +62,7 @@ $(ARCHDIR)/crtn.o \
 all: oasis.bin
 
 oasis.bin: $(OBJS) $(ARCHDIR)/linker.ld
-	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
+	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST) -L ../libc/libk.a
 	grub-file --is-x86-multiboot oasis.bin
 
 $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
@@ -72,7 +75,7 @@ $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 kernel: kernel.c
-	$(CC) kernel.c -o kernel.o $(CFLAGS)
+	$(CC) kernel.c $(LIBK) -o kernel.o $(CFLAGS)
 
 crti.o: x86_crti.s
 	$(AS) x86_crti.s -o $(ARCHDIR)/crti.o
@@ -82,6 +85,9 @@ crtn.o: x86_crtn.s
 
 crt0.o: x86_crt0.s
 	$(AS) x86_crt0.s -o $(ARCHDIR)/crt0.o
+
+boot.o: $(ARCHDIR)/boot.s
+	$(AS) $(ARCHDIR)/boot.s -o $(ARCHDIR)/boot.o
 
 clean:
 	rm -f oasis.bin
