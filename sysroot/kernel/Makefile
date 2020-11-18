@@ -21,10 +21,11 @@ CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
 CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude
 LDFLAGS:=$(LDFLAGS)
 # LIBS:=$(LIBS) -nostdlib -lk -lgcc
-LIBS:=$(LIBS) -nostdlib -lgcc
+LIBS:=$(LIBS) -nostdlib -lgcc -static 
 
 ARCHDIR=arch/$(HOSTARCH)
 CROSSDIR=/home/kai/.bin/cross/lib/gcc/i686-elf/10.2.0
+LIBC=/home/kai/proj/OasisOS/sysroot/libc/libc.a
 
 include $(ARCHDIR)/make.config
 
@@ -40,7 +41,6 @@ kernel/kernel.o \
 
 
 OBJS=\
-../libc/libk.a \
 $(ARCHDIR)/crti.o \
 $(ARCHDIR)/crtbegin.o \
 $(KERNEL_OBJS) \
@@ -53,6 +53,7 @@ $(ARCHDIR)/crti.o \
 $(CROSSDIR)/crtbegin.o \
 $(KERNEL_OBJS) \
 $(LIBS) \
+$(LIBC) \
 $(CROSSDIR)/crtend.o \
 $(ARCHDIR)/crtn.o \
 
@@ -62,7 +63,7 @@ $(ARCHDIR)/crtn.o \
 all: oasis.bin
 
 oasis.bin: $(OBJS) $(ARCHDIR)/linker.ld
-	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST) -L ../libc/libk.a
+	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
 	grub-file --is-x86-multiboot oasis.bin
 
 $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
