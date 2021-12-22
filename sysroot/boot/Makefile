@@ -28,8 +28,8 @@ crtn: x86_crtn.s
 crt0: x86_crt0.s
 	$(AS) x86_crt0.s -o crt0.o
 
-myos: $(OBJ_LINK_LIST)
-	$(CC) -o myos.bin $(OBJ_LINK_LIST)
+linix: $(OBJ_LINK_LIST)
+	$(CC) -o linix.bin $(OBJ_LINK_LIST)
 
 clean:
-	rm -f myos.kernel $(INTERNAL_OBJS)
+	rm -f linix.kernel $(INTERNAL_OBJS)

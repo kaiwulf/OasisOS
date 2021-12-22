@@ -7,7 +7,7 @@ i686-elf-as x86_crti.s -o crti.o
 i686-elf-as x86_crtn.s -o crtn.o
 
 i686-elf-gcc -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-i686-elf-gcc -T linker.ld -o myos.bin -ffreestanding -O2 -nostdlib crti.o CRTBEGIN boot.o kernel.o CRTEND crti.o -lgcc
-mv -f myos.bin isodir/boot/myos.bin
-grub-mkrescue -o myos.iso isodir
-qemu-system-i386 -cdrom myos.iso
+i686-elf-gcc -T linker.ld -o linix.bin -ffreestanding -O2 -nostdlib crti.o CRTBEGIN boot.o kernel.o CRTEND crti.o -lgcc
+mv -f linix.bin isodir/boot/linix.bin
+grub-mkrescue -o linix.iso isodir
+qemu-system-i386 -cdrom linix.iso

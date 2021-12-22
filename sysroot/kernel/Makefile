@@ -60,11 +60,11 @@ $(ARCHDIR)/crtn.o \
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S
 
-all: oasis.bin
+all: linix.bin
 
-oasis.bin: $(OBJS) $(ARCHDIR)/linker.ld
+linix.bin: $(OBJS) $(ARCHDIR)/linker.ld
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
-	grub-file --is-x86-multiboot oasis.bin
+	grub-file --is-x86-multiboot linix.bin
 
 $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
@@ -91,7 +91,7 @@ boot.o: $(ARCHDIR)/boot.s
 	$(AS) $(ARCHDIR)/boot.s -o $(ARCHDIR)/boot.o
 
 clean:
-	rm -f oasis.bin
+	rm -f linix.bin
 	rm -f $(OBJS) *.o */*.o */*/*.o
 	rm -f $(OBJS:.o=.d) *.d */*.d */*/*.d
 
@@ -101,8 +101,8 @@ install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
 
-install-kernel: oasis.bin
+install-kernel: linix.bin
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp oasis.bin $(DESTDIR)$(BOOTDIR)
+	cp linix.bin $(DESTDIR)$(BOOTDIR)
 
 -include $(OBJS:.o=.d)
